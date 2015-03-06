@@ -8,10 +8,10 @@ int[] sections = new int[splitBy];
 int oldMouseX;
 int selectedSection;
 int mouseDown;
-int dataToSend;
+int[] data = new int[3];
 
 void setup() {
-  size(500, 500);
+  size(500, 255);
   sectionWidth = width / splitBy;
 
   port = new Serial(this, Serial.list()[Serial.list().length -1], 9600);
@@ -22,7 +22,10 @@ void draw() {
 
 	// set some defaults
   noStroke();
-  mouseDown = 0;
+
+  data[0] = 0;
+  data[1] = 0;
+  data[2] = 0;
 
 	// setup the rectangles
 	for(int i = 0; i < splitBy; i++) {
@@ -32,8 +35,8 @@ void draw() {
   }
 
   if (mouseX != oldMouseX) {
-
 	  // set the color of the "cursor" and draw cursor
+	  // set it to red by default, green if pressed
  	  fill(255, 0, 0);
  	  if (mousePressed) {
  	  	fill(0, 255, 0);
@@ -43,8 +46,7 @@ void draw() {
  	  // detect in which section the cursor is in
  	  for(int i = 0; i < sections.length; i++) {
  	  	if (mouseX < sections[i]) {
- 	  		selectedSection = i;
-			  dataToSend = selectedSection;
+ 	  		data[0] = i;
  	  		break;
  	  	}
  	  }
@@ -53,12 +55,13 @@ void draw() {
 	// if the mouse is pressed, add 100 to the value to send in order
 	// to denote it
   if (mousePressed) {
-  	mouseDown = 100;
+  	data[1] = 1;
   }
-  dataToSend += mouseDown;
 
-	// send the data
+  data[2] = mouseY;
+
+  String dataToSend = data[0]+","+data[1]+","+data[2]+"\n";
   port.write(dataToSend);
+
   println(dataToSend);
-   
 }
